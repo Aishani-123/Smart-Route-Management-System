@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Traffic System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="authBox">
+    <h2>Login / Register</h2>
+    <input id="username" placeholder="Username"><br>
+    <input id="password" type="password" placeholder="Password"><br>
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
+    <p id="authMsg"></p>
+</div>
+
+<div id="appBox" style="display:none;">
+    <div class="container">
+        <h2>Smart Route Management</h2>
+
+        <input id="src" placeholder="Enter Source City">
+        <input id="dest" placeholder="Enter Destination City">
+
+        <div class="checkbox-group">
+    <input type="checkbox" id="emergency">
+    <label for="emergency">Emergency Vehicle</label>
+</div>
+
+        <button onclick="findRoute()">Find Best Route</button>
+        <button onclick="simulateTraffic()">Simulate Traffic</button>
+
+        <p id="result"></p>
+
+        <canvas id="graphCanvas" width="900" height="600"></canvas>
+    </div>
+</div>
+
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+body {
+    font-family: Arial;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.container {
+    width: 950px;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px magenta;
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+button {
+    padding: 10px;
+    margin: 5px;
+    background: pink;
+    border: none;
+    border-radius: 10px;
+    color: white;
+}
+
+canvas {
+    border: 2px solid black;
+    margin-top: 20px;
+    background: whitesmoke;
+}
