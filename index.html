@@ -17,14 +17,15 @@
 
 <div id="appBox" style="display:none;">
     <div class="container">
-        <h2>Route Management System</h2>
+        <h2>Smart Route Management</h2>
 
         <input id="src" placeholder="Enter Source City">
         <input id="dest" placeholder="Enter Destination City">
 
-        <label>
-            <input type="checkbox" id="emergency"> Emergency Vehicle
-        </label>
+        <div class="checkbox-group">
+    <input type="checkbox" id="emergency">
+    <label for="emergency">Emergency Vehicle</label>
+</div>
 
         <button onclick="findRoute()">Find Best Route</button>
         <button onclick="simulateTraffic()">Simulate Traffic</button>
@@ -34,6 +35,7 @@
         <canvas id="graphCanvas" width="900" height="600"></canvas>
     </div>
 </div>
+
 
 <script src="script.js"></script>
 </body>
