@@ -32,39 +32,52 @@ const cityNames = [
 ];
 
 const graph = [
-[[1,3],[2,2],[3,5],[4,6]],
-[[0,3],[4,5]],
-[[0,2],[3,4]],
-[[2,4],[5,6],[18,8]],
-[[1,5],[20,8]],
-[[3,6],[6,3]],
-[[5,3],[8,4]],
-[[8,3]],
-[[6,4],[7,3]],
-[[0,6],[10,4]],
-[[9,4],[11,3]],
-[[10,3]],
-[[10,3],[13,2]],
-[[12,2]],
-[[10,5]],
-[[16,3],[20,6],[19,7]],
-[[15,3],[17,5]],
-[[16,5],[18,4]],
-[[17,4],[19,2],[3,8]],
+[[1,3],[2,2],[3,5],[4,6],[9,3]],
+[[0,3],[4,5],[2,2],[3,5],[5,4],[10,6]],
+[[0,2],[3,4],[1,2]],
+[[2,4],[5,6],[18,8],[0,2],[1,3],[4,4],[8,3],[13,3]],
+[[1,5],[20,8],[3,3],[8,2],[23,2],[16,1],[0,3],[9,6]],
+
+[[3,6],[6,3],[2,4]],
+[[5,3],[7,4],[8,5]],
+[[8,3],[6,4]],
+[[6,4],[7,3],[3,2],[13,5],[4,2],[12,3],[17,6]],
+[[0,6],[10,4],[14,6],[4,6]],
+
+[[9,4],[11,3],[1,6]],
+[[10,3],[12,3]],
+[[11,3],[13,2],[8,2],[16,3]],
+[[12,2],[14,4],[8,3],[18,4],[3,2]],
+[[13,5],[9,6]],
+
+[[16,1],[20,6],[19,7],[18,3]],
+[[15,1],[17,5],[12,3],[20,4],[18,3],[4,3]],
+[[16,5],[18,4],[8,6]],
+[[17,4],[19,6],[3,8],[13,4],[16,1],[15,3]],
 [[18,2],[22,4],[15,7]],
-[[15,6],[21,2],[4,8]],
-[[20,2],[22,2]],
-[[21,2],[19,4]],
-[[4,6],[24,3],[20,7]],
+
+[[15,6],[21,2],[4,8],[16,4]],
+[[20,2],[22,2],[23,4]],
+[[21,2],[19,4],[23,1]],
+[[4,6],[24,3],[20,7],[22,3],[21,4]],
 [[23,3],[3,5]]
 ];
 
 const roadNames = {
 "0-3":"NH19","0-4":"NH48","2-3":"Yamuna Expressway",
-"3-5":"NH19","4-20":"NH48","15-16":"Mumbai-Pune Exp",
-"18-19":"NH52","20-21":"NH48"
+"3-5":"NH20","4-20":"NH50","15-16":"Mumbai-Pune Exp",
+"18-19":"NH52","20-21":"NH48", "0-9":"Delhi-Ddn Exp","4-16":"JP Road","17-18":"NB Road",
+"19-22":"Indore Vadodara Exp","9-10":"CD Road","6-7":"Grand Trunk Road","5-6":"Awadh Expressway"
 };
-
+function getRoadName(u, v) {
+    let key1 = u + "-" + v;
+    let key2 = v + "-" + u;
+    if (roadNames[key1]) return roadNames[key1];
+    if (roadNames[key2]) return roadNames[key2];
+    let name = "NH-" + (u + v + 10);
+    roadNames[key1] = name;
+    return name;
+}
 let traffic = Array(25).fill(1);
 let signals = Array(25).fill(10);
 
@@ -80,7 +93,10 @@ function cloneGraph() {
 
 function isEdge(path,u,v){
     for(let i=0;i<path.length-1;i++){
-        if(path[i]===u && path[i+1]===v) return true;
+        if (
+            (path[i]===u && path[i+1]===v) ||
+            (path[i]===v && path[i+1]===u)
+        ) return true;
     }
     return false;
 }
@@ -170,57 +186,83 @@ function findRoute() {
     drawGraph(p1, p2);
 }
 let positions = {};
-let cols = 5;
 
-for (let i = 0; i < 25; i++) {
-    positions[i] = [
-        80 + (i % cols) * 140,
-        80 + Math.floor(i / cols) * 100
-    ];
+function generatePositions() {
+    const canvas = document.getElementById("graphCanvas");
+    const cols = 5;
+    const margin = 80;
+
+    const width = canvas.width - margin * 2;
+    const height = canvas.height - margin * 2;
+
+    const xGap = width / (cols - 1);
+    const yGap = height / (Math.ceil(25 / cols) - 1);
+
+    for (let i = 0; i < 25; i++) {
+        let col = i % cols;
+        let row = Math.floor(i / cols);
+
+        positions[i] = [
+            margin + col * xGap,
+            margin + row * yGap
+        ];
+    }
 }
 
 function drawGraph(best=[], alt=[]) {
-    const ctx = document.getElementById("graphCanvas").getContext("2d");
-    ctx.clearRect(0,0,900,600);
-
-    ctx.font = "10px Arial";
-    ctx.textAlign = "center";
-
-    for (let u=0; u<25; u++) {
+    const canvas = document.getElementById("graphCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    generatePositions();
+    for (let u = 0; u < 25; u++) {
         for (let [v] of graph[u]) {
+            if (u < v) {
+                let [x1,y1] = positions[u];
+                let [x2,y2] = positions[v];
 
-            let [x1,y1] = positions[u];
-            let [x2,y2] = positions[v];
+                let isBest = isEdge(best, u, v);
+                let isAlt = isEdge(alt, u, v);
 
-            ctx.beginPath();
-            ctx.moveTo(x1,y1);
-            ctx.lineTo(x2,y2);
+                ctx.beginPath();
+                ctx.moveTo(x1,y1);
+                ctx.lineTo(x2,y2);
 
-            let isBest = isEdge(best,u,v);
-            let isAlt = isEdge(alt,u,v);
+                ctx.lineWidth = isBest ? 5 : isAlt ? 4 : 2;
+                ctx.strokeStyle = isBest ? "red" : isAlt ? "yellow" : "gray";
+                ctx.stroke();
+let r = getRoadName(u, v);
+let midX = (x1 + x2) / 2;
+let midY = (y1 + y2) / 2;
+let angle = Math.atan2(y2 - y1, x2 - x1);
+let offset = (u % 2 === 0) ? 18 : -18;
+let offsetX = midX + offset * Math.sin(angle);
+let offsetY = midY - offset * Math.cos(angle);
+ctx.save();
+ctx.translate(offsetX, offsetY);
 
-            ctx.strokeStyle = isBest ? "green" : isAlt ? "orange" : "gray";
-            ctx.stroke();
+if (angle > Math.PI/2 || angle < -Math.PI/2) {
+    angle += Math.PI;
+}
+ctx.rotate(angle);
+ctx.fillStyle = "blue";
+ctx.fillText(r, 0, 4);
 
-            let r = roadNames[u+"-"+v] || roadNames[v+"-"+u];
-            if (r) {
-                ctx.fillStyle = "blue";
-                ctx.fillText(r, (x1+x2)/2, (y1+y2)/2 - 5);
+ctx.restore();
             }
         }
     }
 
     for (let i=0;i<25;i++){
         let [x,y] = positions[i];
-
         ctx.beginPath();
         ctx.arc(x,y,18,0,2*Math.PI);
-        ctx.fillStyle="white";
+        ctx.fillStyle = traffic[i] >= 3 ? "red" : "white";
         ctx.fill();
+        ctx.strokeStyle = "black"; 
+        ctx.lineWidth = 2;
         ctx.stroke();
-
         ctx.fillStyle="black";
-        ctx.fillText(cityNames[i], x, y+25);
+        ctx.fillText(cityNames[i], x, y+30);
     }
 }
 function simulateTraffic() {
