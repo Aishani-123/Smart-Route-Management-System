@@ -1,12 +1,17 @@
+let cityNames = [];
+let graph = [];
+
 function register() {
     const user = document.getElementById("username").value;
     const pass = document.getElementById("password").value;
-
     if (!user || !pass) {
         document.getElementById("authMsg").innerText = "Fill all fields!";
         return;
     }
-
+    if (localStorage.getItem(user) !== null) {
+        document.getElementById("authMsg").innerText = "Username already exists!";
+        return;
+    }
     localStorage.setItem(user, pass);
     document.getElementById("authMsg").innerText = "Registered!";
 }
@@ -19,11 +24,25 @@ function login() {
         document.getElementById("authBox").style.display = "none";
         document.getElementById("appBox").style.display = "block";
     } else {
-        document.getElementById("authMsg").innerText = "Invalid!";
+        document.getElementById("authMsg").innerText = "Invalid Login!";
     }
 }
 
-const cityNames = [
+async function loadData() {
+    let c = await fetch("http://localhost:3000/cities");
+    let cities = await c.json();
+    cityNames = [];
+    cities.forEach(x => cityNames[x.id] = x.name);
+    let r = await fetch("http://localhost:3000/routes");
+    let routes = await r.json();
+    graph = Array(cityNames.length).fill().map(() => []);
+    routes.forEach(e => {
+        graph[e.source].push([e.destination, e.distance]);
+    });
+    drawGraph();
+}
+
+/*const cityNames = [
 "Delhi","Gurgaon","Noida","Agra","Jaipur",
 "Lucknow","Kanpur","Varanasi","Prayagraj","Dehradun",
 "Chandigarh","Amritsar","Ludhiana","Jalandhar","Shimla",
@@ -61,7 +80,7 @@ const graph = [
 [[21,2],[19,4],[23,1]],
 [[4,6],[24,3],[20,7],[22,3],[21,4]],
 [[23,3],[3,5]]
-];
+];*/
 
 const roadNames = {
 "0-3":"NH19","0-4":"NH48","2-3":"Yamuna Expressway",
@@ -276,4 +295,32 @@ function simulateTraffic() {
     if (document.getElementById("src").value)
         findRoute();
 }
-drawGraph();
+//drawGraph()
+window.onload = loadData;
+
+let r = 0;
+function openFeedback() {
+    document.getElementById("feedbackModal").style.display = "flex";
+}
+function closeFeedback() {
+    document.getElementById("feedbackModal").style.display = "none";
+}
+function rate(n) {
+    r = n;
+    switch(n){
+        case 1:document.getElementById("ratingMsg").innerText = "Very Bad"; break;
+        case 2:document.getElementById("ratingMsg").innerText = "Bad"; break;
+        case 3:document.getElementById("ratingMsg").innerText = "Good"; break;
+        case 4:document.getElementById("ratingMsg").innerText = "Very Good"; break;
+        case 5:document.getElementById("ratingMsg").innerText = "Excellent"; break;
+    }
+}
+function submitFeedback() {
+    if (r === 0) {
+        alert("Please select rating!");
+        return;
+    }
+    alert("Thanks for feedback: " + r + " ⭐");
+    localStorage.setItem("feedback", r);
+    closeFeedback();
+}
