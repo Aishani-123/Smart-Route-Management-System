@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Smart Traffic System</title>
+    <title>Smart Route Management</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -29,11 +29,27 @@
 
         <button onclick="findRoute()">Find Best Route</button>
         <button onclick="simulateTraffic()">Simulate Traffic</button>
-
+        <button onclick="openFeedback()">Feedback ⭐</button>
         <p id="result"></p>
-
         <canvas id="graphCanvas" width="900" height="600"></canvas>
     </div>
+    <div id="feedbackModal" class="modal">
+    <div class="modal-content">
+        <span onclick="closeFeedback()" class="close">&times;</span>
+        <h3>Rate your experience</h3>
+
+        <div id="stars">
+            <span onclick="rate(5)">🥰</span>
+            <span onclick="rate(4)">😊</span>
+            <span onclick="rate(3)">🙂</span>
+            <span onclick="rate(2)">😕</span>
+            <span onclick="rate(1)">😡</span>            
+        </div>
+
+        <p id="ratingMsg"></p>
+        <button onclick="submitFeedback()">Submit</button>
+        </div>
+</div>
 </div>
 
 
